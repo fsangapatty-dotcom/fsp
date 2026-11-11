@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!--
+=====================================================================
+  ventas.html  —  REGISTRO DE VENTAS (SE ABRE EN OTRA VENTANA)
+=====================================================================
+  FUNCIÓN: Muestra la lista de todas las ventas guardadas en localStorage
+  y, al seleccionar una, sus DETALLES (productos con imagen, cantidades,
+  totales). Cuando se cierra una venta en index.html, esta página se abre
+  automáticamente con esa venta seleccionada.
+  Usa los mismos style.css y script.js que index.html.
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Ventas | VentaPro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-pagina="ventas">
+
+  <!-- Luces dinámicas (mismo efecto que en index) -->
+  <div class="luces" aria-hidden="true">
+    <span class="luz luz1"></span>
+    <span class="luz luz2"></span>
+    <span class="luz luz3"></span>
+    <span class="luz luz4"></span>
+  </div>
+  <div class="neon-barra" aria-hidden="true"></div>
+
+  <header class="cabecera">
+    <div class="marca">
+      <div class="marca-logo">◆</div>
+      <div>
+        <h1>VentaPro</h1>
+        <p>Registro de ventas</p>
+      </div>
+    </div>
+    <div class="cabecera-acciones">
+      <button id="btnImprimir" class="btn btn-secundario">🖨 Imprimir recibo</button>
+      <button id="btnBorrarTodo" class="btn btn-peligro">Borrar historial</button>
+    </div>
+  </header>
+
+  <main class="contenedor">
+
+    <!-- ---------- COLUMNA IZQUIERDA: LISTA DE VENTAS ---------- -->
+    <section class="panel">
+      <div class="panel-titulo">
+        <h2>Ventas realizadas</h2>
+        <span id="contadorVentas" class="etiqueta">0 ventas</span>
+      </div>
+
+      <!-- Tarjetas de resumen: total de ventas y monto acumulado -->
+      <div class="resumen">
+        <div class="resumen-item"><span>Ventas</span><strong id="resCantidad">0</strong></div>
+        <div class="resumen-item"><span>Total vendido</span><strong id="resMonto">Bs. 0.00</strong></div>
+      </div>
+
+      <div class="filtros">
+        <input id="buscadorVentas" type="search" placeholder="🔍 Buscar por cliente o N° de venta...">
+      </div>
+
+      <!-- Aquí JavaScript dibuja la lista -->
+      <div id="listaVentas" class="lista-ventas"></div>
+    </section>
+
+    <!-- ---------- COLUMNA DERECHA: DETALLE DE LA VENTA ---------- -->
+    <section class="panel" id="areaDetalle">
+      <div class="panel-titulo"><h2>Detalle de la venta</h2></div>
+      <div id="detalleVenta" class="detalle">
+        <p class="vacio">Selecciona una venta de la lista para ver sus detalles.</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="toasts" class="toasts"></div>
+  <script src="script.js"></script>
+</body>
+</html>

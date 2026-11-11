@@ -1,0 +1,424 @@
+/* =====================================================================
+   style.css  —  HOJA DE ESTILOS (DISEÑO VISUAL)
+=====================================================================
+   FUNCIÓN DE ESTE ARCHIVO:
+   Controla TODO el aspecto del sistema: colores, tipografía, espaciados,
+   tarjetas, botones, animaciones de luces y diseño adaptable a móviles.
+   Se usa tanto en index.html como en ventas.html.
+
+   ÍNDICE:
+   1. Variables y reinicio básico
+   2. Luces dinámicas y barra de neón
+   3. Cabecera
+   4. Layout y paneles
+   5. Botones y formularios
+   6. Catálogo (tarjetas de producto con imagen)
+   7. Carrito y totales
+   8. Registro de ventas y detalle
+   9. Modal, toasts y utilidades
+   10. Responsive e impresión
+===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+   1. VARIABLES Y REINICIO BÁSICO
+   Las variables (--nombre) guardan colores y medidas reutilizables.
+   Si cambias un valor aquí, cambia en todo el sistema.
+   --------------------------------------------------------------------- */
+:root {
+  --fondo: #0b0d1a;                     /* color de fondo general */
+  --panel: rgba(255, 255, 255, 0.06);   /* fondo translúcido de paneles (efecto cristal) */
+  --panel-borde: rgba(255, 255, 255, 0.12);
+  --texto: #eef0ff;
+  --texto-suave: #a5abc9;
+  --acento: #7c5cff;                    /* violeta principal */
+  --acento-2: #22d3ee;                  /* cian secundario */
+  --ok: #34d399;
+  --peligro: #f87171;
+  --radio: 16px;                        /* redondeo de esquinas */
+  --hue: 260;                           /* tono de las luces: JavaScript lo cambia con la música */
+}
+
+/* Reinicio: quita márgenes por defecto y hace que el ancho incluya padding */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+
+/* ---------------------------------------------------------------------
+   2. LUCES DINÁMICAS Y BARRA DE NEÓN
+   Cuatro "luces" (círculos muy difuminados) se mueven lentamente.
+   Su color depende de --hue, que script.js modifica en cada nota musical,
+   por lo que las luces cambian de color al ritmo de la música.
+   --------------------------------------------------------------------- */
+.luces {
+  position: fixed;
+  inset: 0;              /* ocupa toda la pantalla */
+  z-index: 0;            /* queda detrás del contenido */
+  overflow: hidden;
+  pointer-events: none;  /* no bloquea los clics */
+}
+
+.luz {
+  position: absolute;
+  width: 45vmax;
+  height: 45vmax;
+  border-radius: 50%;
+  filter: blur(90px);    /* difumina el círculo para que parezca luz */
+  opacity: 0.45;
+  transition: background 1.2s ease;  /* cambio suave de color */
+}
+
+/* Cada luz tiene color distinto (desfase del tono) y una animación propia */
+.luz1 { background: hsl(var(--hue), 90%, 55%);                     top: -15%; left: -10%;  animation: flotar1 18s ease-in-out infinite; }
+.luz2 { background: hsl(calc(var(--hue) + 80), 90%, 55%);          top: 30%;  right: -15%; animation: flotar2 22s ease-in-out infinite; }
+.luz3 { background: hsl(calc(var(--hue) + 160), 90%, 55%);         bottom: -20%; left: 20%; animation: flotar3 26s ease-in-out infinite; }
+.luz4 { background: hsl(calc(var(--hue) + 240), 90%, 55%);         top: 50%;  left: 40%;   width: 25vmax; height: 25vmax; animation: flotar1 14s ease-in-out infinite reverse; }
+
+/* @keyframes define el movimiento: de un punto a otro y de regreso */
+@keyframes flotar1 { 0%,100% { transform: translate(0,0) scale(1); }   50% { transform: translate(12vw, 10vh) scale(1.2); } }
+@keyframes flotar2 { 0%,100% { transform: translate(0,0) scale(1.1); } 50% { transform: translate(-14vw, 8vh) scale(0.9); } }
+@keyframes flotar3 { 0%,100% { transform: translate(0,0) scale(1); }   50% { transform: translate(10vw, -12vh) scale(1.25); } }
+
+/* Cuando suena una nota, script.js agrega la clase "pulso" al body:
+   las luces se intensifican un instante */
+body.pulso .luz { opacity: 0.7; }
+
+/* Barra superior de neón con degradado que se desplaza */
+.neon-barra {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 50;
+  background: linear-gradient(90deg, #7c5cff, #3022ee, #f472b6, #7c5cff);
+  background-size: 300% 100%;
+  animation: neon 6s linear infinite;
+  box-shadow: 0 0 14px #7c5cff;
+}
+@keyframes neon { to { background-position: 300% 0; } }
+
+
+/* ---------------------------------------------------------------------
+   3. CABECERA
+   --------------------------------------------------------------------- */
+.cabecera {
+  position: relative;
+  z-index: 2;                       /* por encima de las luces */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 20px 32px;
+  background: rgba(11, 13, 26, 0.55);
+  backdrop-filter: blur(14px);      /* desenfoque del fondo = efecto cristal */
+  border-bottom: 1px solid var(--panel-borde);
+}
+
+.marca { display: flex; align-items: center; gap: 14px; }
+.marca h1 { font-size: 1.5rem; letter-spacing: 0.5px; }
+.marca p  { font-size: 0.8rem; color: var(--texto-suave); }
+
+.marca-logo {
+  width: 46px; height: 46px;
+  display: grid; place-items: center;
+  font-size: 1.4rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--acento), var(--acento-2));
+  box-shadow: 0 0 22px hsla(var(--hue), 90%, 60%, 0.7);  /* brillo que sigue el tono de las luces */
+}
+
+.cabecera-acciones { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.musica { display: flex; align-items: center; gap: 10px; }
+.musica input[type="range"] { width: 90px; accent-color: var(--acento); }
+
+
+/* ---------------------------------------------------------------------
+   4. LAYOUT Y PANELES
+   CSS Grid: dos columnas (la primera flexible, la segunda de 380px)
+   --------------------------------------------------------------------- */
+.contenedor {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px 32px 48px;
+}
+
+/* En ventas.html las columnas son: lista (1fr) y detalle (1.2fr) */
+body[data-pagina="ventas"] .contenedor { grid-template-columns: 0.9fr 1.2fr; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-borde);
+  border-radius: var(--radio);
+  padding: 22px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  align-self: start;
+}
+
+.panel-titulo {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 18px;
+}
+.panel-titulo h2 { font-size: 1.15rem; }
+
+.etiqueta {
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: hsla(var(--hue), 90%, 60%, 0.2);
+  border: 1px solid hsla(var(--hue), 90%, 60%, 0.5);
+}
+
+/* El carrito se queda fijo al hacer scroll (sticky) */
+.carrito { position: sticky; top: 20px; }
+
+
+/* ---------------------------------------------------------------------
+   5. BOTONES Y FORMULARIOS
+   --------------------------------------------------------------------- */
+.btn {
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 12px;
+  color: var(--texto);
+  transition: transform 0.15s, box-shadow 0.25s, background 0.25s;
+}
+.btn:hover  { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+
+.btn-primario {
+  background: linear-gradient(135deg, var(--acento), #5b8def);
+  box-shadow: 0 4px 18px hsla(var(--hue), 90%, 60%, 0.45);
+}
+.btn-primario:hover { box-shadow: 0 6px 26px hsla(var(--hue), 90%, 60%, 0.75); }
+
+.btn-secundario { background: rgba(34, 211, 238, 0.15); border: 1px solid rgba(34, 211, 238, 0.5); }
+.btn-fantasma   { background: rgba(255, 255, 255, 0.07); border: 1px solid var(--panel-borde); }
+.btn-peligro    { background: rgba(248, 113, 113, 0.15); border: 1px solid rgba(248, 113, 113, 0.5); }
+.btn-grande     { width: 100%; padding: 15px; font-size: 1rem; margin-top: 16px; }
+
+.btn-texto {
+  background: none; border: none; cursor: pointer;
+  color: var(--peligro); font-size: 0.85rem;
+}
+
+.campo { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; flex: 1; }
+.campo label { font-size: 0.78rem; color: var(--texto-suave); }
+.fila { display: flex; gap: 12px; }
+
+input, select {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-borde);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--texto);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus, select:focus {
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px hsla(var(--hue), 90%, 60%, 0.25);
+}
+select option { background: #151833; }
+
+.filtros { display: flex; gap: 12px; margin-bottom: 18px; }
+
+
+/* ---------------------------------------------------------------------
+   6. CATÁLOGO: TARJETAS DE PRODUCTO (con imagen)
+   auto-fill + minmax = tantas columnas como quepan (mínimo 190px cada una)
+   --------------------------------------------------------------------- */
+.grid-productos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.tarjeta {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-borde);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  display: flex; flex-direction: column;
+}
+.tarjeta:hover {
+  transform: translateY(-6px);
+  border-color: hsla(var(--hue), 90%, 65%, 0.8);
+  box-shadow: 0 12px 30px hsla(var(--hue), 90%, 55%, 0.35);  /* resplandor del color de las luces */
+}
+
+.tarjeta-img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;     /* la imagen llena el recuadro sin deformarse */
+  display: block;
+  background: #1a1d36;
+}
+
+.tarjeta-cuerpo { padding: 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.tarjeta-cat    { font-size: 0.7rem; color: var(--acento-2); text-transform: uppercase; letter-spacing: 1px; }
+.tarjeta-nombre { font-size: 0.98rem; font-weight: 600; }
+.tarjeta-stock  { font-size: 0.75rem; color: var(--texto-suave); }
+.tarjeta-stock.bajo { color: var(--peligro); }
+.tarjeta-precio { font-size: 1.15rem; font-weight: 700; margin-top: auto; }
+.tarjeta .btn   { margin-top: 8px; padding: 9px; width: 100%; }
+.tarjeta .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+
+/* ---------------------------------------------------------------------
+   7. CARRITO Y TOTALES
+   --------------------------------------------------------------------- */
+.items-carrito { max-height: 280px; overflow-y: auto; margin: 6px 0 14px; padding-right: 4px; }
+
+.item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  animation: aparecer 0.3s ease;
+}
+.item img { width: 46px; height: 46px; border-radius: 10px; object-fit: cover; }
+.item-info { flex: 1; min-width: 0; }
+.item-info strong { display: block; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-info span   { font-size: 0.75rem; color: var(--texto-suave); }
+
+.cantidad { display: flex; align-items: center; gap: 6px; }
+.cantidad button {
+  width: 24px; height: 24px; border-radius: 8px; border: none; cursor: pointer;
+  background: rgba(255, 255, 255, 0.12); color: var(--texto); font-weight: 700;
+}
+.cantidad button:hover { background: var(--acento); }
+.cantidad span { min-width: 18px; text-align: center; font-size: 0.85rem; }
+
+@keyframes aparecer { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+
+.totales { border-top: 1px dashed var(--panel-borde); padding-top: 14px; }
+.totales div { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; color: var(--texto-suave); }
+.totales strong { color: var(--texto); }
+.total-final { font-size: 1.2rem !important; margin-top: 10px; }
+.total-final span, .total-final strong { color: var(--texto) !important; font-weight: 800; }
+.total-final strong { color: var(--ok) !important; text-shadow: 0 0 14px rgba(52, 211, 153, 0.6); }
+
+
+/* ---------------------------------------------------------------------
+   8. REGISTRO DE VENTAS Y DETALLE (ventas.html)
+   --------------------------------------------------------------------- */
+.resumen { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.resumen-item {
+  padding: 14px; border-radius: 12px;
+  background: linear-gradient(135deg, hsla(var(--hue), 90%, 60%, 0.22), rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--panel-borde);
+}
+.resumen-item span   { display: block; font-size: 0.75rem; color: var(--texto-suave); }
+.resumen-item strong { font-size: 1.3rem; }
+
+.lista-ventas { max-height: 60vh; overflow-y: auto; }
+
+.venta-fila {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px; margin-bottom: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-borde);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, border-color 0.2s;
+}
+.venta-fila:hover { background: rgba(255, 255, 255, 0.09); transform: translateX(4px); }
+.venta-fila.activa { border-color: var(--acento); background: hsla(var(--hue), 90%, 60%, 0.18); }
+.venta-fila strong { display: block; font-size: 0.95rem; }
+.venta-fila small  { color: var(--texto-suave); font-size: 0.75rem; }
+.venta-monto { font-weight: 800; color: var(--ok); }
+
+.detalle .cab-recibo { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.detalle .cab-recibo h3 { font-size: 1.3rem; }
+.detalle .meta { font-size: 0.82rem; color: var(--texto-suave); line-height: 1.7; }
+
+.detalle table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+.detalle th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--texto-suave); padding: 8px; border-bottom: 1px solid var(--panel-borde); }
+.detalle td { padding: 10px 8px; font-size: 0.88rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); vertical-align: middle; }
+.detalle td img { width: 42px; height: 42px; border-radius: 8px; object-fit: cover; vertical-align: middle; margin-right: 10px; }
+.detalle .der { text-align: right; }
+
+.vacio { text-align: center; color: var(--texto-suave); padding: 40px 10px; }
+.sello-ok { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.72rem; background: rgba(52, 211, 153, 0.18); color: var(--ok); border: 1px solid rgba(52, 211, 153, 0.5); }
+
+
+/* ---------------------------------------------------------------------
+   9. MODAL, TOASTS Y UTILIDADES
+   --------------------------------------------------------------------- */
+.oculto { display: none !important; }   /* clase para esconder elementos */
+
+.modal {
+  position: fixed; inset: 0; z-index: 100;
+  display: grid; place-items: center;
+  background: rgba(5, 6, 15, 0.75);
+  backdrop-filter: blur(6px);
+  padding: 20px;
+}
+.modal-caja {
+  width: 100%; max-width: 460px; max-height: 92vh; overflow-y: auto;
+  background: #12152b;
+  border: 1px solid var(--panel-borde);
+  border-radius: 18px;
+  padding: 26px;
+  box-shadow: 0 0 50px hsla(var(--hue), 90%, 55%, 0.4);
+  animation: aparecer 0.3s ease;
+}
+.modal-caja h3 { margin-bottom: 18px; }
+.modal-botones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+.vista-previa { width: 100%; max-height: 170px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; }
+
+.toasts { position: fixed; bottom: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 10px; }
+.toast {
+  padding: 13px 20px; border-radius: 12px; font-size: 0.88rem;
+  background: #1b1f3d; border-left: 4px solid var(--acento);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  animation: aparecer 0.3s ease;
+}
+.toast.ok    { border-left-color: var(--ok); }
+.toast.error { border-left-color: var(--peligro); }
+
+/* Barra de scroll personalizada */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 8px; }
+
+
+/* ---------------------------------------------------------------------
+   10. RESPONSIVE E IMPRESIÓN
+   @media aplica reglas solo en ciertas condiciones (pantalla pequeña, impresión)
+   --------------------------------------------------------------------- */
+@media (max-width: 980px) {
+  .contenedor, body[data-pagina="ventas"] .contenedor { grid-template-columns: 1fr; padding: 18px; }
+  .carrito { position: static; }
+  .cabecera { padding: 16px 18px; }
+}
+
+/* Al imprimir el recibo, se oculta todo menos el panel de detalle */
+@media print {
+  body { background: #fff; color: #000; }
+  .luces, .neon-barra, .cabecera, .toasts, .contenedor > .panel:first-child { display: none !important; }
+  .contenedor { display: block; padding: 0; }
+  .panel { background: #fff; border: none; box-shadow: none; color: #000; }
+  .detalle .meta, .detalle th { color: #333; }
+  .detalle td { border-color: #ddd; }
+  .sello-ok { color: #000; border-color: #000; background: none; }
+}

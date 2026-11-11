@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<!--
+=====================================================================
+  index.html  —  PÁGINA PRINCIPAL DEL SISTEMA DE VENTAS
+=====================================================================
+  FUNCIÓN DE ESTE ARCHIVO:
+  Define la ESTRUCTURA (el "esqueleto") de la página: qué elementos existen
+  (cabecera, catálogo de productos, carrito, formulario de nuevo producto).
+  - El ASPECTO (colores, luces, tamaños) lo controla style.css
+  - El COMPORTAMIENTO (guardar, calcular, música) lo controla script.js
+  Cada elemento importante tiene un id="..." para que JavaScript lo encuentre.
+-->
+<html lang="es">
+<head>
+  <!-- Codificación de caracteres: permite tildes y ñ -->
+  <meta charset="UTF-8">
+  <!-- Hace que la página se adapte a celulares y tablets (diseño responsive) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Ventas | Demo</title>
+  <!-- Enlazamos la hoja de estilos externa -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<!-- data-pagina le dice a script.js en qué página está, para ejecutar solo lo necesario -->
+<body data-pagina="index">
+
+  <!-- ============ LUCES DINÁMICAS DE FONDO ============
+       Son círculos de color difuminados que flotan y cambian de color
+       al ritmo de la música. Su animación está en style.css (.luz) y el
+       cambio de color por la música en script.js (función pulsoDeLuces). -->
+  <div class="luces" aria-hidden="true">
+    <span class="luz luz1"></span>
+    <span class="luz luz2"></span>
+    <span class="luz luz3"></span>
+    <span class="luz luz4"></span>
+  </div>
+  <!-- Barra de neón animada en la parte superior -->
+  <div class="neon-barra" aria-hidden="true"></div>
+
+  <!-- ============ CABECERA ============ -->
+  <header class="cabecera">
+    <div class="marca">
+      <div class="marca-logo">◆</div>
+      <div>
+        <h1>VentaPro</h1>
+        <p>Sistema de punto de venta</p>
+      </div>
+    </div>
+
+    <div class="cabecera-acciones">
+      <!-- Control de música: botón play/pausa y volumen -->
+      <div class="musica">
+        <button id="btnMusica" class="btn btn-fantasma" title="Activar / pausar música">
+          <span id="iconoMusica">▶</span> Música
+        </button>
+        <input id="volumen" type="range" min="0" max="100" value="40" title="Volumen">
+      </div>
+      <button id="btnNuevoProducto" class="btn btn-secundario">+ Nuevo producto</button>
+      <!-- Abre la página de registro de ventas en OTRA ventana -->
+      <button id="btnVerVentas" class="btn btn-primario">📋 Ver ventas</button>
+    </div>
+  </header>
+
+  <!-- ============ CONTENIDO PRINCIPAL (2 columnas: catálogo + carrito) ============ -->
+  <main class="contenedor">
+
+    <!-- ---------- COLUMNA IZQUIERDA: CATÁLOGO ---------- -->
+    <section class="panel catalogo">
+      <div class="panel-titulo">
+        <h2>Catálogo de productos</h2>
+        <span id="contadorProductos" class="etiqueta">0 productos</span>
+      </div>
+
+      <!-- Herramientas de búsqueda y filtro -->
+      <div class="filtros">
+        <input id="buscador" type="search" placeholder="🔍 Buscar producto...">
+        <select id="filtroCategoria">
+          <option value="todas">Todas las categorías</option>
+        </select>
+      </div>
+
+      <!-- Aquí JavaScript dibuja las tarjetas de productos (con su imagen) -->
+      <div id="listaProductos" class="grid-productos"></div>
+    </section>
+
+    <!-- ---------- COLUMNA DERECHA: CARRITO / VENTA ---------- -->
+    <aside class="panel carrito">
+      <div class="panel-titulo">
+        <h2>Venta actual</h2>
+        <button id="btnVaciar" class="btn-texto">Vaciar</button>
+      </div>
+
+      <!-- Datos del cliente y método de pago -->
+      <div class="campo">
+        <label for="cliente">Cliente</label>
+        <input id="cliente" type="text" placeholder="Nombre del cliente">
+      </div>
+      <div class="campo">
+        <label for="pago">Método de pago</label>
+        <select id="pago">
+          <option>Efectivo</option>
+          <option>Tarjeta</option>
+          <option>Transferencia / QR</option>
+        </select>
+      </div>
+
+      <!-- Aquí JavaScript dibuja los productos agregados a la venta -->
+      <div id="itemsCarrito" class="items-carrito"></div>
+
+      <!-- Resumen de totales -->
+      <div class="totales">
+        <div><span>Subtotal</span><strong id="subtotal">Bs. 0.00</strong></div>
+        <div><span>IVA (13%)</span><strong id="iva">Bs. 0.00</strong></div>
+        <div class="total-final"><span>TOTAL</span><strong id="total">Bs. 0.00</strong></div>
+      </div>
+
+      <!-- Al hacer clic: guarda la venta y abre su registro en otra ventana -->
+      <button id="btnCerrarVenta" class="btn btn-primario btn-grande">✔ Cerrar venta</button>
+    </aside>
+  </main>
+
+  <!-- ============ VENTANA MODAL: NUEVO PRODUCTO ============
+       Está oculta por defecto (clase "oculto"). JavaScript la muestra
+       al presionar "+ Nuevo producto". -->
+  <div id="modalProducto" class="modal oculto">
+    <form id="formProducto" class="modal-caja">
+      <h3>Agregar nuevo producto</h3>
+
+      <div class="campo">
+        <label for="pNombre">Nombre</label>
+        <input id="pNombre" type="text" required placeholder="Ej. Auriculares Bluetooth">
+      </div>
+
+      <div class="fila">
+        <div class="campo">
+          <label for="pPrecio">Precio (Bs.)</label>
+          <input id="pPrecio" type="number" min="0.01" step="0.01" required placeholder="0.00">
+        </div>
+        <div class="campo">
+          <label for="pStock">Stock</label>
+          <input id="pStock" type="number" min="1" step="1" required placeholder="10">
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="pCategoria">Categoría</label>
+        <input id="pCategoria" type="text" required placeholder="Ej. Tecnología" list="listaCategorias">
+        <!-- datalist = sugerencias de categorías ya existentes (las llena script.js) -->
+        <datalist id="listaCategorias"></datalist>
+      </div>
+
+      <div class="campo">
+        <label for="pImagen">Imagen del producto (archivo)</label>
+        <input id="pImagen" type="file" accept="image/*">
+      </div>
+      <div class="campo">
+        <label for="pImagenUrl">…o pega la URL de una imagen</label>
+        <input id="pImagenUrl" type="url" placeholder="https://...">
+      </div>
+      <img id="vistaPrevia" class="vista-previa oculto" alt="Vista previa">
+
+      <div class="modal-botones">
+        <button type="button" id="btnCancelarProducto" class="btn btn-fantasma">Cancelar</button>
+        <button type="submit" class="btn btn-primario">Guardar producto</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Contenedor de mensajes emergentes (toasts) -->
+  <div id="toasts" class="toasts"></div>
+
+  <!-- El script va al FINAL del body para que el HTML ya exista cuando se ejecute -->
+  <script src="script.js"></script>
+</body>
+</html>
